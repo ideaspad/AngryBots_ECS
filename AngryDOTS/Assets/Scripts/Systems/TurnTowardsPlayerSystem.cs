@@ -1,39 +1,21 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
-using UnityEngine;
+﻿using Unity.Entities;
 
 [UpdateBefore(typeof(MoveForwardSystem))]
-public class TurnTowardsPlayerSystem : JobComponentSystem
+partial struct TurnTowardsPlayerSystem : ISystem
 {
-	[BurstCompile]
-	[RequireComponentTag(typeof(EnemyTag))]
-	struct TurnJob : IJobForEach<Translation, Rotation>
+	public void OnCreate(ref SystemState state)
 	{
-		public float3 playerPosition; 
-
-		public void Execute([ReadOnly] ref Translation pos, ref Rotation rot)
-		{
-			float3 heading = playerPosition - pos.Value;
-			heading.y = 0f;
-			rot.Value = quaternion.LookRotation(heading, math.up());
-		}
+		
 	}
 
-	protected override JobHandle OnUpdate(JobHandle inputDeps)
+	public void OnDestroy(ref SystemState state)
 	{
-		if (Settings.IsPlayerDead())
-			return inputDeps;
+		
+	}
 
-		var job = new TurnJob
-		{
-			playerPosition = Settings.PlayerPosition
-		};
-
-		return job.Schedule(this, inputDeps);
+	public void OnUpdate(ref SystemState state)
+	{
+		
 	}
 }
 

@@ -1,11 +1,9 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
-namespace Components
+public struct SettingsComponent : IComponentData
 {
-    public class SettingsComponent : IComponentData
-    {
-        public float PlayerCollisionRadius;
-        public float EnemyCollisionRadius;
-        public TransformAuthoring Player;
-    }
+    public float PlayerCollisionRadius;
+    public float EnemyCollisionRadius;
+    public float3 Player;
 }

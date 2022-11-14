@@ -1,44 +1,21 @@
 ﻿using Unity.Entities;
-using Unity.Jobs;
 using Unity.Transforms;
-using UnityEngine;
 
 
 [UpdateAfter(typeof(MoveForwardSystem))]
-public class TimedDestroySystem : JobComponentSystem
+partial struct TimedDestroySystem : ISystem
 {
-	EndSimulationEntityCommandBufferSystem buffer;
-
-	protected override void OnCreateManager()
+	public void OnCreate(ref SystemState state)
 	{
-		buffer = World.Active.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+		
 	}
 
-	struct CullingJob : IJobForEachWithEntity<TimeToLive>
+	public void OnDestroy(ref SystemState state)
 	{
-		public EntityCommandBuffer.Concurrent commands;
-		public float dt;
-
-		public void Execute(Entity entity, int jobIndex, ref TimeToLive timeToLive)
-		{
-			timeToLive.Value -= dt;
-			if (timeToLive.Value <= 0f)
-				commands.DestroyEntity(jobIndex, entity);
-		}
 	}
 
-	protected override JobHandle OnUpdate(JobHandle inputDeps)
+	public void OnUpdate(ref SystemState state)
 	{
-		var job = new CullingJob
-		{
-			commands = buffer.CreateCommandBuffer().ToConcurrent(),
-			dt = Time.deltaTime
-		};
-
-		var handle = job.Schedule(this, inputDeps);
-		buffer.AddJobHandleForProducer(handle);
-
-		return handle;
 	}
 }
 

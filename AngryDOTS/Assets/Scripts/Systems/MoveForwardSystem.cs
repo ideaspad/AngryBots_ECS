@@ -1,34 +1,18 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEngine;
+﻿using Unity.Entities;
+using Unity.Transforms;
 
-namespace Unity.Transforms
+partial class MoveForwardSystem : SystemBase
 {
-	public class MoveForwardSystem : JobComponentSystem
-	{
-		[BurstCompile]
-		[RequireComponentTag(typeof(MoveForward))]
-		struct MoveForwardRotation : IJobForEach<Translation, Rotation, MoveSpeed>
-		{
-			public float dt;
-
-			public void Execute(ref Translation pos, [ReadOnly] ref Rotation rot, [ReadOnly] ref MoveSpeed speed)
-			{
-				pos.Value = pos.Value + (dt * speed.Value * math.forward(rot.Value));
-			}
-		}
-
-		protected override JobHandle OnUpdate(JobHandle inputDeps)
-		{
-			var moveForwardRotationJob = new MoveForwardRotation
-			{
-				dt = Time.deltaTime
-			};
-
-			return moveForwardRotationJob.Schedule(this, inputDeps);
-		}
-	}
+    protected override void OnUpdate()
+    {
+        var dt = SystemAPI.Time.DeltaTime;
+        Entities
+            .WithAll<MoveForward, MoveSpeed>()
+            .ForEach((TransformAspect transform, MoveSpeed moveSpeed) =>
+            {
+                var pos = transform.Position;
+                transform.Position = pos + (dt * moveSpeed.Value * transform.Forward);
+            })
+            .Schedule();
+    }
 }
